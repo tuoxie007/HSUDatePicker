@@ -519,12 +519,11 @@ NSString *localWeekday(NSInteger weekday)
     NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
     [fmt setDateFormat:@"E"];
     NSDate *date = [NSDate date];
-    NSDateComponents *components = [[NSCalendar currentCalendar] components:NSDayCalendarUnit|NSWeekdayCalendarUnit fromDate:date];
+    NSDateComponents *components = [[NSCalendar currentCalendar] components:-1 fromDate:date];
     while (components.weekday != weekday) {
         components.day += 1;
         date = [[NSCalendar currentCalendar] dateFromComponents:components];
-        components = [[NSCalendar currentCalendar] components:NSDayCalendarUnit|NSWeekdayCalendarUnit fromDate:date];
+        components = [[NSCalendar currentCalendar] components:-1 fromDate:date];
     }
-    date = [[NSCalendar currentCalendar] dateFromComponents:components];
     return [fmt stringFromDate:date];
 }
