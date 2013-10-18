@@ -50,11 +50,6 @@ NSString *localWeekday(NSInteger weekday);
 
 @implementation HSUDatePicker
 
-- (void)dealloc
-{
-    [[NSNotificationCenter defaultCenter] removeObserver:self];
-}
-
 - (id)initWithStartYear:(NSInteger)startYear endYear:(NSInteger)endYear
 {
     self = [super init];
@@ -92,6 +87,13 @@ NSString *localWeekday(NSInteger weekday);
                                              action:@selector(cancel)];
     
     [super viewDidAppear:animated];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [[NSNotificationCenter defaultCenter] removeObserver:self];
+    
+    [super viewWillDisappear:animated];
 }
 
 - (void)selectDate:(NSNotification *)notification
