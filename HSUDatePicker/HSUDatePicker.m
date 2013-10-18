@@ -8,9 +8,6 @@
 
 #import "HSUDatePicker.h"
 
-NSString *localMonth(NSInteger month);
-NSString *localWeekday(NSInteger weekday);
-
 #define TextFont 16
 #define HSUDatePickerSelectAction @"HSUDatePickerSelectAction"
 
@@ -140,10 +137,12 @@ NSString *localWeekday(NSInteger weekday);
 
 - (void)touchesBegan:(NSSet *)touches withEvent:(UIEvent *)event
 {
-    [[NSNotificationCenter defaultCenter]
-     postNotificationName:HSUDatePickerSelectAction
-     object:nil
-     userInfo:@{@"date": self.date, @"state": @(UIGestureRecognizerStateBegan)}];
+    if (self.date) {
+        [[NSNotificationCenter defaultCenter]
+         postNotificationName:HSUDatePickerSelectAction
+         object:nil
+         userInfo:@{@"date": self.date, @"state": @(UIGestureRecognizerStateBegan)}];
+    }
 }
 
 - (void)touchesCancelled:(NSSet *)touches withEvent:(UIEvent *)event
@@ -238,7 +237,7 @@ NSString *localWeekday(NSInteger weekday);
     CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
     CGContextFillRect(context, rect);
     
-    NSString *text = localMonth(self.month);
+    NSString *text = [self localMonth:self.month];
     UIFont *font = [UIFont systemFontOfSize:TextFont];
     NSDictionary *attr = @{NSFontAttributeName: font,
                            NSForegroundColorAttributeName: self.tintColor ?: [UIColor blackColor]};
@@ -247,6 +246,19 @@ NSString *localWeekday(NSInteger weekday);
                                     rect.size.height/2-textSize.height/2);
     [text drawAtPoint:textPoint withAttributes:attr];
 }
+
+- (NSString *)localMonth:(NSInteger)month
+{
+    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
+    [fmt setDateFormat:@"MMM"];
+    NSDate *date = [NSDate date];
+    NSDateComponents *components = [[NSCalendar currentCalendar] components:NSMonthCalendarUnit fromDate:date];
+    components.month = month;
+    date = [[NSCalendar currentCalendar] dateFromComponents:components];
+    return [fmt stringFromDate:date];
+}
+
+
 
 @end
 
@@ -284,7 +296,7 @@ NSString *localWeekday(NSInteger weekday);
 {
     self.weekdayLabels = [NSMutableArray array];
     for (int i=0; i<7; i++) {
-        NSString *text = localWeekday(i+1);
+        NSString *text = [self localWeekday:i+1];
         UILabel *weekdayLabel = [[UILabel alloc] init];
         [self.weekdayLabels addObject:weekdayLabel];
         weekdayLabel.textAlignment = NSTextAlignmentCenter;
@@ -349,6 +361,20 @@ NSString *localWeekday(NSInteger weekday);
     }];
     
     [super viewWillDisappear:animated];
+}
+
+- (NSString *)localWeekday:(NSInteger)weekday
+{
+    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
+    [fmt setDateFormat:@"E"];
+    NSDate *date = [NSDate date];
+    NSDateComponents *components = [[NSCalendar currentCalendar] components:-1 fromDate:date];
+    while (components.weekday != weekday) {
+        components.day += 1;
+        date = [[NSCalendar currentCalendar] dateFromComponents:components];
+        components = [[NSCalendar currentCalendar] components:-1 fromDate:date];
+    }
+    return [fmt stringFromDate:date];
 }
 
 // count moths
@@ -505,28 +531,3 @@ NSString *localWeekday(NSInteger weekday);
 }
 
 @end
-
-NSString *localMonth(NSInteger month)
-{
-    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
-    [fmt setDateFormat:@"MMM"];
-    NSDate *date = [NSDate date];
-    NSDateComponents *components = [[NSCalendar currentCalendar] components:NSMonthCalendarUnit fromDate:date];
-    components.month = month;
-    date = [[NSCalendar currentCalendar] dateFromComponents:components];
-    return [fmt stringFromDate:date];
-}
-
-NSString *localWeekday(NSInteger weekday)
-{
-    NSDateFormatter *fmt = [[NSDateFormatter alloc] init];
-    [fmt setDateFormat:@"E"];
-    NSDate *date = [NSDate date];
-    NSDateComponents *components = [[NSCalendar currentCalendar] components:-1 fromDate:date];
-    while (components.weekday != weekday) {
-        components.day += 1;
-        date = [[NSCalendar currentCalendar] dateFromComponents:components];
-        components = [[NSCalendar currentCalendar] components:-1 fromDate:date];
-    }
-    return [fmt stringFromDate:date];
-}
