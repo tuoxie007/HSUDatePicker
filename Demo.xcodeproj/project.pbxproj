@@ -17,7 +17,6 @@
 		968D288817E8A7670077DE34 /* Main.storyboard in Resources */ = {isa = PBXBuildFile; fileRef = 968D288617E8A7670077DE34 /* Main.storyboard */; };
 		968D288B17E8A7670077DE34 /* HSUViewController.m in Sources */ = {isa = PBXBuildFile; fileRef = 968D288A17E8A7670077DE34 /* HSUViewController.m */; };
 		968D288D17E8A7670077DE34 /* Images.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 968D288C17E8A7670077DE34 /* Images.xcassets */; };
-		968D28B317E991CC0077DE34 /* libDatePicker.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 968D28B217E991CC0077DE34 /* libDatePicker.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -46,7 +45,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				968D28B317E991CC0077DE34 /* libDatePicker.a in Frameworks */,
 				968D287717E8A7670077DE34 /* CoreGraphics.framework in Frameworks */,
 				968D287917E8A7670077DE34 /* UIKit.framework in Frameworks */,
 				968D287517E8A7670077DE34 /* Foundation.framework in Frameworks */,

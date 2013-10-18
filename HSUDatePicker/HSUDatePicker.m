@@ -185,6 +185,7 @@ NSString *localWeekday(NSInteger weekday);
         points[0] = CGPointMake(0, 0);
         points[1] = CGPointMake(rect.size.width, 0);
         CGContextStrokeLineSegments(context, points, 2);
+        free(points);
         
         NSDateComponents *components = [[NSCalendar currentCalendar] components:NSDayCalendarUnit|NSWeekdayCalendarUnit
                                                                        fromDate:self.date];
@@ -261,7 +262,7 @@ NSString *localWeekday(NSInteger weekday);
 {
     self.view.backgroundColor = [UIColor whiteColor];
     [self.collectionView registerClass:[HSUDateCollectionViewCell class]
-            forCellWithReuseIdentifier:[[HSUDateCollectionViewCell class] description]];
+            forCellWithReuseIdentifier:@"HSUDateCollectionViewCell"];
     [self.collectionView registerClass:[HSUDateCollectionViewHeader class]
             forSupplementaryViewOfKind:UICollectionElementKindSectionHeader
                    withReuseIdentifier:@"Header"];
@@ -378,7 +379,7 @@ NSString *localWeekday(NSInteger weekday);
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    HSUDateCollectionViewCell *cell = (HSUDateCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:[[HSUDateCollectionViewCell class] description]
+    HSUDateCollectionViewCell *cell = (HSUDateCollectionViewCell *)[collectionView dequeueReusableCellWithReuseIdentifier:@"HSUDateCollectionViewCell"
                                                                                                              forIndexPath:indexPath];
     NSInteger year = indexPath.section / 12 + self.startYear;
     NSInteger month = indexPath.section % 12 + 1;
@@ -453,7 +454,7 @@ NSString *localWeekday(NSInteger weekday);
         }
         [header sizeToFit];
         
-        self.title = [NSString stringWithFormat:@"%ld", year];
+        self.title = [NSString stringWithFormat:@"%ld", (long)year];
         
         return header;
     }
