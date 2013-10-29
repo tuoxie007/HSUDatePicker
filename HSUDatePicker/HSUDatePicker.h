@@ -11,9 +11,13 @@
 @protocol HSUDatePickerDelegate;
 @interface HSUDatePicker : UINavigationController
 
-@property (nonatomic, strong) UIColor *tintColor;
+@property (nonatomic, strong) UIColor *todayColor;
+@property (nonatomic, strong) UIColor *touchColor;
+@property (nonatomic, strong) UIColor *selectedColor;
+
 @property (nonatomic, assign) NSInteger startYear;
 @property (nonatomic, assign) NSInteger endYear;
+
 @property (nonatomic, assign, getter = isSupportMultiSelection) BOOL supportMultiSelection;
 @property (nonatomic, strong) NSDate *selectedDate;
 @property (nonatomic, strong) NSDateComponents *selectedDateComponents;

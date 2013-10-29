@@ -13,9 +13,13 @@
 
 @interface HSUDatePickerViewController : UICollectionViewController
 
-@property (nonatomic, strong) UIColor *tintColor;
+@property (nonatomic, strong) UIColor *todayColor;
+@property (nonatomic, strong) UIColor *touchColor;
+@property (nonatomic, strong) UIColor *selectedColor;
+
 @property (nonatomic, assign) NSInteger startYear;
 @property (nonatomic, assign) NSInteger endYear;
+
 @property (nonatomic, strong) NSDateComponents *selectedDateComponents;
 @property (nonatomic, strong) NSDateComponents *startSelectDateComponents;
 
@@ -54,7 +58,11 @@
         NSAssert(startYear > 1582, @"startYear should later than 1582");
         self.startYear = startYear;
         self.endYear = endYear;
-        self.tintColor = [UIColor redColor];
+        
+        self.todayColor = [UIColor redColor];
+        self.touchColor = [UIColor lightGrayColor];
+        self.selectedColor = [UIColor blackColor];
+        
         [[NSNotificationCenter defaultCenter]
          addObserver:self
          selector:@selector(selectDate:)
@@ -64,11 +72,20 @@
     return self;
 }
 
+- (id)initFromCurrentYearWithYears:(NSInteger)years
+{
+    NSDateComponents *coms = [[NSCalendar currentCalendar] components:NSYearCalendarUnit fromDate:[NSDate date]];
+    return [self initWithStartYear:coms.year endYear:coms.year+years];
+}
+
 - (void)viewDidLoad
 {
     HSUDatePickerViewController *datePickerVC = [[HSUDatePickerViewController alloc]
                                                  initWithCollectionViewLayout:[[UICollectionViewFlowLayout alloc] init]];
-    datePickerVC.tintColor = self.tintColor;
+    datePickerVC.todayColor = self.todayColor;
+    datePickerVC.touchColor = self.touchColor;
+    datePickerVC.selectedColor = self.selectedColor;
+    
     datePickerVC.startYear = self.startYear;
     datePickerVC.endYear = self.endYear;
     self.viewControllers = @[datePickerVC];
@@ -102,7 +119,9 @@
         NSDateComponents *dateComponents = [[NSCalendar currentCalendar] components:-1 fromDate:self.startSelectedDate];
         HSUDatePickerViewController *datePickerVC = (HSUDatePickerViewController *)self.viewControllers[0];
         datePickerVC.startSelectDateComponents = dateComponents;
+#ifdef __IPHONE_7_0
         [datePickerVC.collectionView reloadData];
+#endif
     } else if (state == UIGestureRecognizerStateEnded) {
         self.selectedDate = self.startSelectedDate;
         self.selectedDateComponents = [[NSCalendar currentCalendar] components:-1 fromDate:self.selectedDate];
@@ -196,20 +215,38 @@
             font = [UIFont boldSystemFontOfSize:TextFont+2];
             CGContextSetFillColorWithColor(context, self.tintColor.CGColor);
             CGContextFillEllipseInRect(context, CGRectMake(6, 4, rect.size.width-12, rect.size.width-12));
+#ifdef __IPHONE_7_0
             NSDictionary *attr = @{NSFontAttributeName: font,
                                    NSForegroundColorAttributeName: [UIColor whiteColor]};
             CGSize textSize = [text sizeWithAttributes:attr];
             [text drawAtPoint:CGPointMake(rect.size.width/2-textSize.width/2, 9) withAttributes:attr];
+#else
+            CGContextSetFillColorWithColor(context, [UIColor whiteColor].CGColor);
+            CGSize textSize = [text sizeWithFont:font];
+            [text drawAtPoint:CGPointMake(rect.size.width/2-textSize.width/2, 9) withFont:font];
+#endif
         } else if (components.weekday == 1 || components.weekday == 7) {
+#ifdef __IPHONE_7_0
             NSDictionary *attr = @{NSFontAttributeName: font,
                                    NSForegroundColorAttributeName: [UIColor grayColor]};
             CGSize textSize = [text sizeWithAttributes:attr];
             [text drawAtPoint:CGPointMake(rect.size.width/2-textSize.width/2, 10) withAttributes:attr];
+#else
+            CGContextSetFillColorWithColor(context, [UIColor grayColor].CGColor);
+            CGSize textSize = [text sizeWithFont:font];
+            [text drawAtPoint:CGPointMake(rect.size.width/2-textSize.width/2, 10) withFont:font];
+#endif
         } else {
+#ifdef __IPHONE_7_0
             NSDictionary *attr = @{NSFontAttributeName: font,
                                    NSForegroundColorAttributeName: [UIColor blackColor]};
             CGSize textSize = [text sizeWithAttributes:attr];
             [text drawAtPoint:CGPointMake(rect.size.width/2-textSize.width/2, 10) withAttributes:attr];
+#else
+            CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
+            CGSize textSize = [text sizeWithFont:font];
+            [text drawAtPoint:CGPointMake(rect.size.width/2-textSize.width/2, 10) withFont:font];
+#endif
         }
     }
 }
@@ -239,12 +276,20 @@
     
     NSString *text = [self localMonth:self.month];
     UIFont *font = [UIFont systemFontOfSize:TextFont];
+#ifdef __IPHONE_7_0
     NSDictionary *attr = @{NSFontAttributeName: font,
                            NSForegroundColorAttributeName: self.tintColor ?: [UIColor blackColor]};
     CGSize textSize = [text sizeWithAttributes:attr];
     CGPoint textPoint = CGPointMake(self.firstWeekDay * rect.size.width / 7 + (rect.size.width/7/2 - textSize.width/2) ,
                                     rect.size.height/2-textSize.height/2);
     [text drawAtPoint:textPoint withAttributes:attr];
+#else
+    CGContextSetFillColorWithColor(context, [UIColor blackColor].CGColor);
+    CGSize textSize = [text sizeWithFont:font];
+    CGPoint textPoint = CGPointMake(self.firstWeekDay * rect.size.width / 7 + (rect.size.width/7/2 - textSize.width/2) ,
+                                    rect.size.height/2-textSize.height/2);
+    [text drawAtPoint:textPoint withFont:font];
+#endif
 }
 
 - (NSString *)localMonth:(NSInteger)month
@@ -304,10 +349,14 @@
         weekdayLabel.textColor = i == 0 || i == 6 ? [UIColor grayColor] : [UIColor blackColor];
         weekdayLabel.text = text;
         [weekdayLabel sizeToFit];
-        [[UIApplication sharedApplication].keyWindow addSubview:weekdayLabel];
+        [self.view addSubview:weekdayLabel];
         weekdayLabel.backgroundColor = [UIColor whiteColor];
         weekdayLabel.frame = CGRectMake(i * self.view.bounds.size.width / 7,
+#ifdef __IPHONE_7_0
                                         64,
+#else
+                                        0,
+#endif
                                         self.view.frame.size.width / 7,
                                         20);
         weekdayLabel.alpha = 0;
@@ -323,12 +372,16 @@
                                            self.collectionView.frame.size.width,
                                            self.collectionView.frame.size.height-20);
     
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]
-                                             initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
-                                             target:self.navigationController
-                                             action:@selector(cancel)];
+    if (!self.navigationItem.leftBarButtonItem) {
+        self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]
+                                                 initWithBarButtonSystemItem:UIBarButtonSystemItemCancel
+                                                 target:self.navigationController
+                                                 action:@selector(cancel)];
+    }
     self.navigationController.navigationBar.backgroundColor = [UIColor whiteColor];
+#ifdef __IPHONE_7_0
     self.navigationController.navigationBar.barTintColor = [UIColor whiteColor];
+#endif
     self.navigationController.navigationBar.opaque = YES;
     
     NSUInteger section = (self.today.year - self.startYear) * 12 + self.today.month - 1;
@@ -433,15 +486,15 @@
         if (components.year == self.today.year &&
             components.month == self.today.month &&
             components.day == self.today.day) {
-            cell.tintColor = [UIColor redColor];
+            cell.tintColor = self.todayColor;
         } else if (components.year == self.startSelectDateComponents.year &&
                    components.month == self.startSelectDateComponents.month &&
                    components.day == self.startSelectDateComponents.day) {
-            cell.tintColor = [UIColor lightGrayColor];
+            cell.tintColor = self.touchColor;
         } else if (components.year == self.selectedDateComponents.year &&
                    components.month == self.selectedDateComponents.month &&
                    components.day == self.selectedDateComponents.day) {
-            cell.tintColor = [UIColor blackColor];
+            cell.tintColor = self.selectedColor;
         } else {
             cell.tintColor = nil;
         }
@@ -476,7 +529,7 @@
         header.firstWeekDay = components.weekday % 7;
         header.month = month;
         if (components.year == self.today.year && month == self.today.month) {
-            header.tintColor = [UIColor redColor];
+            header.tintColor = self.touchColor;
         } else {
             header.tintColor = nil;
         }
