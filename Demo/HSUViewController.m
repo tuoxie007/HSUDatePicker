@@ -34,6 +34,9 @@
 - (void)selectDate
 {
     HSUDatePicker *datePicker = [[HSUDatePicker alloc] initWithStartYear:2010 endYear:2014];
+    datePicker.todayColor = [UIColor redColor];
+    datePicker.touchColor = [UIColor lightGrayColor];
+    datePicker.selectedColor = [UIColor blackColor];
     datePicker.delegate = self;
     [self presentViewController:datePicker animated:YES completion:nil];
 }
