@@ -466,7 +466,6 @@
     NSInteger month = indexPath.section % 12 + 1;
     
     NSCalendar *calendar = [NSCalendar currentCalendar];
-    [calendar setTimeZone:[NSTimeZone timeZoneForSecondsFromGMT:0]];
     
     NSDateComponents *components = [calendar components:(NSYearCalendarUnit|NSMonthCalendarUnit|NSDayCalendarUnit)
                                                fromDate:[NSDate dateWithTimeIntervalSince1970:0]];
